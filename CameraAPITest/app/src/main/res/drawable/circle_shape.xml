@@ -10,10 +10,4 @@
         android:color="@color/material_blue_25"
         android:width="1dp"/>
 
-    <corners
-        android:bottomLeftRadius="36dp"
-        android:bottomRightRadius="36dp"
-        android:topLeftRadius="36dp"
-        android:topRightRadius="36dp"/>
-
 </shape>
