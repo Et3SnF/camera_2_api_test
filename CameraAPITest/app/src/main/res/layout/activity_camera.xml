@@ -13,11 +13,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <FrameLayout
-            android:id="@+id/fl_texture_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
         <RelativeLayout
             android:id="@+id/rl_circular_capture_btn"
             android:layout_width="72dp"
@@ -34,15 +29,20 @@
 
             <Button
                 android:id="@+id/btn_pic_capture"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_margin="21dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_margin="20dp"
                 android:background="@drawable/ic_camera_alt_white_36dp"
                 android:layout_centerVertical="true"
                 android:layout_centerHorizontal="true"
                 android:alpha="25"/>
 
         </RelativeLayout>
+
+        <TextureView
+            android:id="@+id/txv_camera_activity"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
     </RelativeLayout>
 
