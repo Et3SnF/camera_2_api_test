@@ -1,7 +1,9 @@
 package com.android.ngynstvn.cameraapitest;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -59,10 +61,9 @@ public class CameraActivity extends AppCompatActivity {
      *
      */
 
-    private Size previewSize = null;
     private TextureView textureView = null;
     private TextureView.SurfaceTextureListener surfaceTextureListener = new TextureView.SurfaceTextureListener() {
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+        @TargetApi(Build.VERSION_CODES.M)
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
             Log.v(TAG, "onSurfaceTextureAvailable() called");
@@ -84,12 +85,22 @@ public class CameraActivity extends AppCompatActivity {
                 StreamConfigurationMap streamConfigurationMap = cameraCharacteristics
                         .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
                 previewSize = streamConfigurationMap.getOutputSizes(SurfaceTexture.class)[0];
+                if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    public void requestPermissions(@NonNull String[] permissions, int requestCode)
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for Activity#requestPermissions for more details.
+                    return;
+                }
+                cameraManager.openCamera(cameraId, stateCallback, null);
             }
             catch (CameraAccessException e) {
                 Log.e(TAG, "ISSUE FOUND ON LINE: " + e.getStackTrace()[0].getLineNumber());
                 e.printStackTrace();
             }
-
         }
 
         @Override
@@ -108,6 +119,8 @@ public class CameraActivity extends AppCompatActivity {
             Log.v(TAG, "onSurfaceTextureUpdated() called");
         }
     };
+
+    private Size previewSize = null;
 
     /**
      *
@@ -230,7 +243,6 @@ public class CameraActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         Log.e(TAG, "onCreate() called");
         super.onCreate(savedInstanceState);
-
         // called first before adding content
         setContentView(R.layout.activity_camera);
 

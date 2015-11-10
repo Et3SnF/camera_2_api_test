@@ -13,6 +13,11 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <TextureView
+            android:id="@+id/txv_camera_activity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
         <RelativeLayout
             android:id="@+id/rl_circular_capture_btn"
             android:layout_width="72dp"
@@ -35,14 +40,9 @@
                 android:background="@drawable/ic_camera_alt_white_36dp"
                 android:layout_centerVertical="true"
                 android:layout_centerHorizontal="true"
-                android:alpha="25"/>
+                android:alpha="0.9"/>
 
         </RelativeLayout>
-
-        <TextureView
-            android:id="@+id/txv_camera_activity"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
 
     </RelativeLayout>
 

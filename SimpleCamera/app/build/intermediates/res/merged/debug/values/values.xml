@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- From: file:/Users/Ngynstvn/Documents/bloc_io/ScratchWork/Camera2ApiTest/SimpleCamera/app/src/main/res/values/colors.xml -->
+    <eat-comment/>
+    <color name="button_background">#40000000</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="material_blue_25">#403F51B5</color>
     <!-- From: file:/Users/Ngynstvn/Documents/bloc_io/ScratchWork/Camera2ApiTest/SimpleCamera/app/src/main/res/values/strings.xml -->
     <eat-comment/>
     <string name="app_name">SimpleCamera</string>
