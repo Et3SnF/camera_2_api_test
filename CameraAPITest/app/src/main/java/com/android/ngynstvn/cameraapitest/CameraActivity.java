@@ -215,10 +215,13 @@ public class CameraActivity extends AppCompatActivity {
 
     private CoordinatorLayout coordinatorLayout;
 
+    private RelativeLayout topIconsHolder;
+    private Button exitCameraBtn;
+
     private RelativeLayout bottomIconsHolder;
     private Button captureButton;
     private Button cameraSwitchBtn;
-    private Button exitCameraBtn;
+    private Button flashModeBtn;
 
     private RelativeLayout middleIconsHolder;
     private Button cancelCaptureBtn;
@@ -239,10 +242,12 @@ public class CameraActivity extends AppCompatActivity {
 
         textureView = (TextureView) findViewById(R.id.txv_camera_activity);
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.sb_activity_camera);
+        topIconsHolder = (RelativeLayout) findViewById(R.id.rl_top_icons);
+        exitCameraBtn = (Button) findViewById(R.id.btn_exit_camera);
         bottomIconsHolder = (RelativeLayout) findViewById(R.id.rl_bottom_icons);
         captureButton = (Button) findViewById(R.id.btn_pic_capture);
         cameraSwitchBtn = (Button) findViewById(R.id.btn_camera_switch);
-        exitCameraBtn = (Button) findViewById(R.id.btn_exit_camera_mode);
+        flashModeBtn = (Button) findViewById(R.id.btn_flash_mode);
         middleIconsHolder = (RelativeLayout) findViewById(R.id.rl_middle_icons);
         cancelCaptureBtn = (Button) findViewById(R.id.btn_pic_cancel);
         approveCaptureBtn = (Button) findViewById(R.id.btn_pic_approve);
@@ -257,6 +262,13 @@ public class CameraActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Snackbar.make(coordinatorLayout, "TextureView Surface Pressed", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+
+        exitCameraBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Snackbar.make(coordinatorLayout, "Exit Camera Button Pressed", Snackbar.LENGTH_SHORT).show();
             }
         });
 
@@ -276,6 +288,8 @@ public class CameraActivity extends AppCompatActivity {
 
                 bottomIconsHolder.setVisibility(View.GONE);
                 bottomIconsHolder.setEnabled(false);
+                topIconsHolder.setVisibility(View.GONE);
+                topIconsHolder.setEnabled(false);
 
                 middleIconsHolder.setVisibility(View.VISIBLE);
                 middleIconsHolder.setEnabled(true);
@@ -291,10 +305,10 @@ public class CameraActivity extends AppCompatActivity {
             }
         });
 
-        exitCameraBtn.setOnClickListener(new View.OnClickListener() {
+        flashModeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Snackbar.make(coordinatorLayout, "Exit Camera Button Pressed", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(coordinatorLayout, "Flash Mode Button Pressed", Snackbar.LENGTH_SHORT).show();
             }
         });
 
@@ -308,6 +322,9 @@ public class CameraActivity extends AppCompatActivity {
 
                 bottomIconsHolder.setVisibility(View.VISIBLE);
                 bottomIconsHolder.setEnabled(true);
+
+                topIconsHolder.setVisibility(View.VISIBLE);
+                topIconsHolder.setEnabled(true);
 
                 // Safety measure??
 
