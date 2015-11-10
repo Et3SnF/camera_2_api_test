@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 
 import java.util.Arrays;
 
@@ -71,29 +72,14 @@ public class CameraActivity extends AppCompatActivity {
             /**
              *
              * CameraManager Portion
+             * activateCamera() involves has CameraManager instance with other info (like below..)
+             *
+             *      Get necessary camera id, characteristics, char maps, and output sizes
+             *      After that, activate the camera
              *
              */
 
-            CameraManager cameraManager = (CameraManager) getSystemService(CAMERA_SERVICE);
-
-            // Get necessary camera id, characteristics, char maps, and output sizes
-            // After that, activate the camera
-
-            try {
-                String cameraId = cameraManager.getCameraIdList()[0];
-                CameraCharacteristics cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId);
-                StreamConfigurationMap streamConfigurationMap = cameraCharacteristics
-                        .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-                previewSize = streamConfigurationMap.getOutputSizes(SurfaceTexture.class)[0];
-                cameraManager.openCamera(cameraId, stateCallback, null);
-            }
-            catch (CameraAccessException e) {
-                Log.e(TAG, "ISSUE FOUND ON LINE: " + e.getStackTrace()[0].getLineNumber());
-                e.printStackTrace();
-            }
-            catch (SecurityException e) {
-                e.printStackTrace();
-            }
+            activateCamera();
         }
 
         @Override
@@ -228,7 +214,15 @@ public class CameraActivity extends AppCompatActivity {
     };
 
     private CoordinatorLayout coordinatorLayout;
+
+    private RelativeLayout bottomIconsHolder;
     private Button captureButton;
+    private Button cameraSwitchBtn;
+    private Button exitCameraBtn;
+
+    private RelativeLayout middleIconsHolder;
+    private Button cancelCaptureBtn;
+    private Button approveCaptureBtn;
 
     // ----- Lifecycle Methods ----- //
 
@@ -244,15 +238,32 @@ public class CameraActivity extends AppCompatActivity {
         // Basically get this whole cycle working...it all starts with TextureView
 
         textureView = (TextureView) findViewById(R.id.txv_camera_activity);
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.sb_activity_camera);
+        bottomIconsHolder = (RelativeLayout) findViewById(R.id.rl_bottom_icons);
+        captureButton = (Button) findViewById(R.id.btn_pic_capture);
+        cameraSwitchBtn = (Button) findViewById(R.id.btn_camera_switch);
+        exitCameraBtn = (Button) findViewById(R.id.btn_exit_camera_mode);
+        middleIconsHolder = (RelativeLayout) findViewById(R.id.rl_middle_icons);
+        cancelCaptureBtn = (Button) findViewById(R.id.btn_pic_cancel);
+        approveCaptureBtn = (Button) findViewById(R.id.btn_pic_approve);
+
         textureView.setSurfaceTextureListener(surfaceTextureListener);
 
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.sb_activity_camera);
+        if(middleIconsHolder.isEnabled()) {
+            middleIconsHolder.setEnabled(false);
+        }
 
-        captureButton = (Button) findViewById(R.id.btn_pic_capture);
+        textureView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Snackbar.make(coordinatorLayout, "TextureView Surface Pressed", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Snackbar.make(coordinatorLayout, "Capture Button pressed", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(coordinatorLayout, "Capture Image Button Pressed", Snackbar.LENGTH_SHORT).show();
 
                 /**
                  *
@@ -262,6 +273,54 @@ public class CameraActivity extends AppCompatActivity {
                  * .setAction("Undo", new OnClickListner() {...}.show();
                  *
                  */
+
+                bottomIconsHolder.setVisibility(View.GONE);
+                bottomIconsHolder.setEnabled(false);
+
+                middleIconsHolder.setVisibility(View.VISIBLE);
+                middleIconsHolder.setEnabled(true);
+
+                textureView.setEnabled(false);
+            }
+        });
+
+        cameraSwitchBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Snackbar.make(coordinatorLayout, "Camera Mode Button Pressed", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+
+        exitCameraBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Snackbar.make(coordinatorLayout, "Exit Camera Button Pressed", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+
+        cancelCaptureBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Snackbar.make(coordinatorLayout, "Cancel Capture Pressed", Snackbar.LENGTH_SHORT).show();
+
+                middleIconsHolder.setVisibility(View.GONE);
+                middleIconsHolder.setEnabled(false);
+
+                bottomIconsHolder.setVisibility(View.VISIBLE);
+                bottomIconsHolder.setEnabled(true);
+
+                // Safety measure??
+
+                if(!textureView.isEnabled()) {
+                    textureView.setEnabled(true);
+                }
+            }
+        });
+
+        approveCaptureBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Snackbar.make(coordinatorLayout, "Approve Capture Pressed", Snackbar.LENGTH_SHORT).show();
             }
         });
     }
@@ -270,6 +329,15 @@ public class CameraActivity extends AppCompatActivity {
     protected void onResume() {
         Log.e(TAG, "onResume() called");
         super.onResume();
+
+        textureView.setSurfaceTextureListener(surfaceTextureListener);
+
+        if(textureView.isAvailable()) {
+            activateCamera();
+        }
+        else {
+            textureView.setSurfaceTextureListener(surfaceTextureListener);
+        }
     }
 
     @Override
@@ -283,14 +351,40 @@ public class CameraActivity extends AppCompatActivity {
         super.onPause();
 
         // Stop any camera sessions
+        closeCamera();
+    }
 
+    // --------------------- //
+
+    private void activateCamera() {
+
+        CameraManager cameraManager = (CameraManager) getSystemService(CAMERA_SERVICE);
+
+        // Get necessary camera id, characteristics, char maps, and output sizes
+        // After that, activate the camera
+
+        try {
+            String cameraId = cameraManager.getCameraIdList()[0];
+            CameraCharacteristics cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId);
+            StreamConfigurationMap streamConfigurationMap = cameraCharacteristics
+                    .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+            previewSize = streamConfigurationMap.getOutputSizes(SurfaceTexture.class)[0];
+            cameraManager.openCamera(cameraId, stateCallback, null);
+        }
+        catch (CameraAccessException e) {
+            Log.e(TAG, "ISSUE FOUND ON LINE: " + e.getStackTrace()[0].getLineNumber());
+            e.printStackTrace();
+        }
+        catch (SecurityException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void closeCamera() {
         if(cameraDevice != null) {
             cameraDevice.close();
             cameraDevice = null;
         }
     }
-
-    // --------------------- //
-
-
 }
