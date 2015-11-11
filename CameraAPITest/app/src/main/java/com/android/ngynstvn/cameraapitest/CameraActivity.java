@@ -11,6 +11,7 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,7 +32,10 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.Arrays;
 
@@ -60,6 +64,7 @@ public class CameraActivity extends AppCompatActivity {
      */
 
     private static final String TAG = CameraActivity.class.getSimpleName() + ": ";
+    private static final int IMAGE_CAPTURE_KEY = 0;
 
     /**
      *
@@ -283,6 +288,8 @@ public class CameraActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                takePhoto();
+
                 int upDownTransHeight = bottomIconsHolder.getMeasuredHeight();
 
                 moveVerticalAnimation(bottomIconsHolder, 0, upDownTransHeight, transDuration);
@@ -387,6 +394,17 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.e(TAG, "onActivityResult() called");
+
+        if(requestCode == IMAGE_CAPTURE_KEY) {
+            if(resultCode == RESULT_OK) {
+                Bundle bundle = data.getExtras();
+                Uri uri = (Uri) bundle.get("data");
+                ImageView previewImageView = (ImageView) findViewById(R.id.iv_capture_image);
+                textureView.setVisibility(View.GONE);
+                previewImageView.setVisibility(View.VISIBLE);
+                Picasso.with(getApplicationContext()).load(uri).into(previewImageView);
+            }
+        }
     }
 
     @Override
@@ -430,6 +448,11 @@ public class CameraActivity extends AppCompatActivity {
             cameraDevice.close();
             cameraDevice = null;
         }
+    }
+
+    private void takePhoto() {
+        previewBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_START);
+
     }
 
     /**
