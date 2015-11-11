@@ -56,19 +56,19 @@
 
             <View
                 android:id="@+id/v_circle_shape_cancel_pic"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/circle_shape_cancel"/>
-
-            <Button
-                android:id="@+id/btn_pic_cancel"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:layout_margin="16dp"
                 android:background="@drawable/ic_close_white_24dp"
                 android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"/>
+
+            <View
+                android:id="@+id/v_pic_cancel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
                 android:layout_centerHorizontal="true"
-                android:alpha="0.8"/>
+                android:background="@drawable/circle_shape_cancel"/>
 
         </RelativeLayout>
 
@@ -85,16 +85,17 @@
 
             <View
                 android:id="@+id/v_circle_shape_approve_pic"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/circle_shape_approve"/>
-
-            <Button
-                android:id="@+id/btn_pic_approve"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:layout_margin="16dp"
                 android:background="@drawable/ic_check_white_24dp"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"/>
+
+            <View
+                android:id="@+id/v_pic_approve"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/circle_shape_approve"
                 android:layout_centerVertical="true"
                 android:layout_centerHorizontal="true"
                 android:alpha="0.8"/>
@@ -131,19 +132,19 @@
 
                 <View
                     android:id="@+id/v_circle_shape"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/circle_shape_capture"/>
-
-                <Button
-                    android:id="@+id/btn_pic_capture"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:padding="20dp"
                     android:background="@drawable/ic_camera_alt_white_36dp"
                     android:layout_centerVertical="true"
-                    android:layout_centerHorizontal="true"
-                    android:alpha="0.9"/>
+                    android:layout_centerHorizontal="true"/>
+
+                <View
+                    android:id="@+id/v_pic_capture"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/circle_shape_capture"
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true"/>
 
             </RelativeLayout>
 

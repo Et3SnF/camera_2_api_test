@@ -224,14 +224,18 @@ public class CameraActivity extends AppCompatActivity {
     private Button exitCameraBtn;
 
     private RelativeLayout bottomIconsHolder;
-    private Button captureButton;
+    private View captureButton;
     private Button cameraSwitchBtn;
     private Button flashModeBtn;
 
     private RelativeLayout cancelCapBtnHolder;
-    private Button cancelCaptureBtn;
+    private View cancelCaptureBtn;
     private RelativeLayout approveCapBtnHolder;
-    private Button approveCaptureBtn;
+    private View approveCaptureBtn;
+
+    DisplayMetrics displayMetrics = new DisplayMetrics();
+    private long transDuration = 200L;
+    private long fadeDuration = 600L;
 
     // ----- Lifecycle Methods ----- //
 
@@ -251,17 +255,15 @@ public class CameraActivity extends AppCompatActivity {
         topIconsHolder = (RelativeLayout) findViewById(R.id.rl_top_icons);
         exitCameraBtn = (Button) findViewById(R.id.btn_exit_camera);
         bottomIconsHolder = (RelativeLayout) findViewById(R.id.rl_bottom_icons);
-        captureButton = (Button) findViewById(R.id.btn_pic_capture);
+        captureButton = findViewById(R.id.v_pic_capture);
         cameraSwitchBtn = (Button) findViewById(R.id.btn_camera_switch);
         flashModeBtn = (Button) findViewById(R.id.btn_flash_mode);
         cancelCapBtnHolder = (RelativeLayout) findViewById(R.id.rl_cancel_picture);
         approveCapBtnHolder = (RelativeLayout) findViewById(R.id.rl_approve_pic);
-        cancelCaptureBtn = (Button) findViewById(R.id.btn_pic_cancel);
-        approveCaptureBtn = (Button) findViewById(R.id.btn_pic_approve);
+        cancelCaptureBtn = findViewById(R.id.v_pic_cancel);
+        approveCaptureBtn = findViewById(R.id.v_pic_approve);
 
         textureView.setSurfaceTextureListener(surfaceTextureListener);
-
-        final int translateWidth = cancelCapBtnHolder.getMeasuredWidth();
 
         textureView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -281,31 +283,29 @@ public class CameraActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                moveVerticalAnimation(bottomIconsHolder, 0, 500, 600L);
-                moveVerticalAnimation(topIconsHolder, 0, -500, 200);
+                int upDownTransHeight = bottomIconsHolder.getMeasuredHeight();
 
-                bottomIconsHolder.setVisibility(View.GONE);
+                moveVerticalAnimation(bottomIconsHolder, 0, upDownTransHeight, transDuration);
+                moveVerticalAnimation(topIconsHolder, 0, (-1 * upDownTransHeight), transDuration);
+
+                topIconsHolder.setEnabled(false);
                 bottomIconsHolder.setEnabled(false);
                 topIconsHolder.setVisibility(View.GONE);
-                topIconsHolder.setEnabled(false);
+                bottomIconsHolder.setVisibility(View.GONE);
 
-                DisplayMetrics displayMetrics = new DisplayMetrics();
-                long transDuration = 200L;
-                long fadeDuration = 600L;
+                cancelCapBtnHolder.setEnabled(true);
+                approveCapBtnHolder.setEnabled(true);
 
-                moveFadeAnimation(cancelCapBtnHolder, (-192),
-                        displayMetrics.widthPixels, 0, 0, 0.0f, 1.0f, transDuration, fadeDuration);
+                int leftRightTransWidth = cancelCapBtnHolder.getMeasuredWidth();
 
-                moveFadeAnimation(approveCapBtnHolder, 192, displayMetrics.widthPixels
+                moveFadeAnimation(cancelCapBtnHolder, (-1 * leftRightTransWidth),
+                        displayMetrics.widthPixels, 0, 0, 0.00f, 1.00f, transDuration, fadeDuration);
+
+                moveFadeAnimation(approveCapBtnHolder, leftRightTransWidth, displayMetrics.widthPixels
                         , 0, 0, 0.0f, 1.0f, transDuration, fadeDuration);
 
-                topIconsHolder.setVisibility(View.GONE);
-                topIconsHolder.setEnabled(false);
-
                 cancelCapBtnHolder.setVisibility(View.VISIBLE);
-                cancelCapBtnHolder.setEnabled(true);
                 approveCapBtnHolder.setVisibility(View.VISIBLE);
-                approveCapBtnHolder.setEnabled(true);
 
                 textureView.setEnabled(false);
             }
@@ -325,42 +325,35 @@ public class CameraActivity extends AppCompatActivity {
             }
         });
 
-        final int moveY = bottomIconsHolder.getMeasuredHeight();
-
         cancelCaptureBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                DisplayMetrics displayMetrics = new DisplayMetrics();
-                long transDuration = 200L;
-                long fadeDuration = 600L;
+                int leftRightTransWidth = cancelCapBtnHolder.getMeasuredWidth();
 
-                if(cancelCapBtnHolder.isEnabled() && approveCapBtnHolder.isEnabled()) {
-                    int translateWidth = cancelCapBtnHolder.getMeasuredWidth();
+                moveFadeAnimation(cancelCapBtnHolder, displayMetrics.widthPixels
+                        , (-1 * leftRightTransWidth), 0, 0, 1.00f, 0.00F, transDuration, fadeDuration);
 
-                    moveFadeAnimation(cancelCapBtnHolder, displayMetrics.widthPixels
-                            , -192, 0, 0, 1.0f, 0, transDuration, fadeDuration);
-
-                    moveFadeAnimation(approveCapBtnHolder, displayMetrics.widthPixels
-                            , translateWidth, 0, 0, 1.0f, 0, transDuration, fadeDuration);
-                }
+                moveFadeAnimation(approveCapBtnHolder, displayMetrics.widthPixels
+                        , leftRightTransWidth, 0, 0, 1.00F, 0.00F, transDuration, fadeDuration);
 
                 cancelCapBtnHolder.setVisibility(View.GONE);
-                cancelCapBtnHolder.setEnabled(false);
                 approveCapBtnHolder.setVisibility(View.GONE);
+                cancelCapBtnHolder.setEnabled(false);
                 approveCapBtnHolder.setEnabled(false);
 
                 bottomIconsHolder.setEnabled(true);
-                moveVerticalAnimation(bottomIconsHolder, 500, 0, transDuration);
+                topIconsHolder.setEnabled(true);
+
+                int upDownTransHeight = bottomIconsHolder.getMeasuredHeight();
+
+                moveVerticalAnimation(bottomIconsHolder, upDownTransHeight, 0, transDuration);
+                moveVerticalAnimation(topIconsHolder, (-1 * upDownTransHeight), 0, transDuration);
 
                 bottomIconsHolder.setVisibility(View.VISIBLE);
-
-                topIconsHolder.setEnabled(true);
-                moveVerticalAnimation(topIconsHolder, -500, 0, transDuration);
                 topIconsHolder.setVisibility(View.VISIBLE);
 
-
-                // Safety measure??
+                // Can case something seriously happened...
 
                 if(!textureView.isEnabled()) {
                     textureView.setEnabled(true);
