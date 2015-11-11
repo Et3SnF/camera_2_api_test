@@ -18,13 +18,18 @@ import android.os.HandlerThread;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.AnimationSet;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
@@ -223,8 +228,9 @@ public class CameraActivity extends AppCompatActivity {
     private Button cameraSwitchBtn;
     private Button flashModeBtn;
 
-    private RelativeLayout middleIconsHolder;
+    private RelativeLayout cancelCapBtnHolder;
     private Button cancelCaptureBtn;
+    private RelativeLayout approveCapBtnHolder;
     private Button approveCaptureBtn;
 
     // ----- Lifecycle Methods ----- //
@@ -248,15 +254,14 @@ public class CameraActivity extends AppCompatActivity {
         captureButton = (Button) findViewById(R.id.btn_pic_capture);
         cameraSwitchBtn = (Button) findViewById(R.id.btn_camera_switch);
         flashModeBtn = (Button) findViewById(R.id.btn_flash_mode);
-        middleIconsHolder = (RelativeLayout) findViewById(R.id.rl_middle_icons);
+        cancelCapBtnHolder = (RelativeLayout) findViewById(R.id.rl_cancel_picture);
+        approveCapBtnHolder = (RelativeLayout) findViewById(R.id.rl_approve_pic);
         cancelCaptureBtn = (Button) findViewById(R.id.btn_pic_cancel);
         approveCaptureBtn = (Button) findViewById(R.id.btn_pic_approve);
 
         textureView.setSurfaceTextureListener(surfaceTextureListener);
 
-        if(middleIconsHolder.isEnabled()) {
-            middleIconsHolder.setEnabled(false);
-        }
+        final int translateWidth = cancelCapBtnHolder.getMeasuredWidth();
 
         textureView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -275,24 +280,32 @@ public class CameraActivity extends AppCompatActivity {
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Snackbar.make(coordinatorLayout, "Capture Image Button Pressed", Snackbar.LENGTH_SHORT).show();
 
-                /**
-                 *
-                 * Code for the undo button
-                 *
-                 * Snackbar.make(coordinatorLayout, "Capture Button Pressed", SnackBar.LENGTH_SHORT)
-                 * .setAction("Undo", new OnClickListner() {...}.show();
-                 *
-                 */
+                moveVerticalAnimation(bottomIconsHolder, 0, 500, 600L);
+                moveVerticalAnimation(topIconsHolder, 0, -500, 200);
 
                 bottomIconsHolder.setVisibility(View.GONE);
                 bottomIconsHolder.setEnabled(false);
                 topIconsHolder.setVisibility(View.GONE);
                 topIconsHolder.setEnabled(false);
 
-                middleIconsHolder.setVisibility(View.VISIBLE);
-                middleIconsHolder.setEnabled(true);
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                long transDuration = 200L;
+                long fadeDuration = 600L;
+
+                moveFadeAnimation(cancelCapBtnHolder, (-192),
+                        displayMetrics.widthPixels, 0, 0, 0.0f, 1.0f, transDuration, fadeDuration);
+
+                moveFadeAnimation(approveCapBtnHolder, 192, displayMetrics.widthPixels
+                        , 0, 0, 0.0f, 1.0f, transDuration, fadeDuration);
+
+                topIconsHolder.setVisibility(View.GONE);
+                topIconsHolder.setEnabled(false);
+
+                cancelCapBtnHolder.setVisibility(View.VISIBLE);
+                cancelCapBtnHolder.setEnabled(true);
+                approveCapBtnHolder.setVisibility(View.VISIBLE);
+                approveCapBtnHolder.setEnabled(true);
 
                 textureView.setEnabled(false);
             }
@@ -312,19 +325,40 @@ public class CameraActivity extends AppCompatActivity {
             }
         });
 
+        final int moveY = bottomIconsHolder.getMeasuredHeight();
+
         cancelCaptureBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Snackbar.make(coordinatorLayout, "Cancel Capture Pressed", Snackbar.LENGTH_SHORT).show();
 
-                middleIconsHolder.setVisibility(View.GONE);
-                middleIconsHolder.setEnabled(false);
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                long transDuration = 200L;
+                long fadeDuration = 600L;
+
+                if(cancelCapBtnHolder.isEnabled() && approveCapBtnHolder.isEnabled()) {
+                    int translateWidth = cancelCapBtnHolder.getMeasuredWidth();
+
+                    moveFadeAnimation(cancelCapBtnHolder, displayMetrics.widthPixels
+                            , -192, 0, 0, 1.0f, 0, transDuration, fadeDuration);
+
+                    moveFadeAnimation(approveCapBtnHolder, displayMetrics.widthPixels
+                            , translateWidth, 0, 0, 1.0f, 0, transDuration, fadeDuration);
+                }
+
+                cancelCapBtnHolder.setVisibility(View.GONE);
+                cancelCapBtnHolder.setEnabled(false);
+                approveCapBtnHolder.setVisibility(View.GONE);
+                approveCapBtnHolder.setEnabled(false);
+
+                bottomIconsHolder.setEnabled(true);
+                moveVerticalAnimation(bottomIconsHolder, 500, 0, transDuration);
 
                 bottomIconsHolder.setVisibility(View.VISIBLE);
-                bottomIconsHolder.setEnabled(true);
 
-                topIconsHolder.setVisibility(View.VISIBLE);
                 topIconsHolder.setEnabled(true);
+                moveVerticalAnimation(topIconsHolder, -500, 0, transDuration);
+                topIconsHolder.setVisibility(View.VISIBLE);
+
 
                 // Safety measure??
 
@@ -403,5 +437,46 @@ public class CameraActivity extends AppCompatActivity {
             cameraDevice.close();
             cameraDevice = null;
         }
+    }
+
+    /**
+     *
+     * Animation Methods
+     *
+     */
+
+    /**
+     *
+     * @param viewGroup - Viewgroup to translate
+     * @param fromX - starting x value (float)
+     * @param toX - end x value (float)
+     * @param fromY- starting y value (float)
+     * @param toY- starting y value (float)
+     * @param time1- animation time of translation (long)
+     * @param time2 - animation time of fade (long)
+     */
+
+    private void moveFadeAnimation(ViewGroup viewGroup, float fromX, float toX, float fromY, float toY,
+                                   float fromAlpha, float toAlpha, long time1, long time2) {
+        AnimationSet animationSet = new AnimationSet(true);
+
+        TranslateAnimation translateAnimation = new TranslateAnimation(fromX, toX, fromY, toY);
+        translateAnimation.setDuration(time1);
+
+        AlphaAnimation fadeAnimation = new AlphaAnimation(fromAlpha, toAlpha);
+        fadeAnimation.setDuration(time2);
+
+        animationSet.addAnimation(translateAnimation);
+        animationSet.addAnimation(fadeAnimation);
+
+        viewGroup.startAnimation(animationSet);
+    }
+
+    private void moveVerticalAnimation(ViewGroup viewGroup, int fromY, int toY, long time) {
+
+        TranslateAnimation translateAnimation = new TranslateAnimation(0, 0, fromY, toY);
+        translateAnimation.setDuration(time);
+        viewGroup.startAnimation(translateAnimation);
+
     }
 }
