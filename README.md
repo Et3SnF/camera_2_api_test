@@ -1,0 +1,1 @@
+This is a test for the Camera 2 API. Unfortunatley I did not know beforehand that this supported Android Lollipop and higher. Will be looking into Camera 1 API to integrate for higher usage compatibility.
