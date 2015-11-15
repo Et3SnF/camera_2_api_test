@@ -1,1 +1,1 @@
-This is a test for the Camera 2 API. Unfortunatley I did not know beforehand that this supported Android Lollipop and higher. Will be looking into Camera 1 API to integrate for higher usage compatibility.
+This is a test for the Camera 2 API. There is a lot of material to wrap around and so far it only has newer OS compatibilties.
